@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kirim Pesan WhatsApp</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    form { display: flex; flex-direction: column; width: 300px; }
+    input, textarea { margin-bottom: 1rem; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc; }
+    button { padding: 0.7rem; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    #status { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>Kirim Pesan WhatsApp</h2>
+  <form id="sendForm">
+    <input type="text" id="number" placeholder="Nomor (contoh: 6281234567890)" required />
+    <input id="name" placeholder="Nama..." required />
+    <button type="submit">Kirim</button>
+  </form>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('sendForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const number = document.getElementById('number').value;
+      const name = document.getElementById('name').value;
+      const statusDiv = document.getElementById('status');
+
+      statusDiv.textContent = '⏳ Mengirim...';
+
+      try {
+        const response = await fetch('/send-activation-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number, name }),
+        });
+
+        const result = await response.json();
+        statusDiv.textContent = result.status === 'success' ? '✅ ' + result.message : '❌ ' + result.error;
+      } catch (err) {
+        statusDiv.textContent = '❌ Terjadi kesalahan: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
