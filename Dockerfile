@@ -18,8 +18,6 @@ RUN npm ci --only=production \
 
 COPY . .
 
-RUN npm run build
-
 FROM node:22-alpine AS runtime
 
 WORKDIR /app
@@ -28,4 +26,4 @@ COPY --from=builder /app /app
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
