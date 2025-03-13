@@ -1,29 +1,56 @@
-FROM node:22-alpine AS builder
+FROM node:18-slim
 
-RUN apk add --no-cache \
-    ffmpeg \
-    nano \
-    zip unzip \
-    chromium \
-    font-noto \
-    font-noto-cjk \
-    font-noto-emoji
-
+# Set working directory
 WORKDIR /app
 
+# Install dependencies untuk Puppeteer
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libc6 \
+    libcairo2 \
+    libcups2 \
+    libdbus-1-3 \
+    libexpat1 \
+    libfontconfig1 \
+    libgbm1 \
+    libglib2.0-0 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxi6 \
+    libxrandr2 \
+    libxrender1 \
+    libxss1 \
+    libxtst6 \
+    lsb-release \
+    xdg-utils \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package.json dan install dependencies
 COPY package*.json ./
+RUN npm install
 
-RUN npm ci --only=production \
-    && npm cache clean --force
-
+# Copy seluruh kode aplikasi
 COPY . .
 
-FROM node:22-alpine AS runtime
+# Expose port untuk server Express
+EXPOSE 3001
 
-WORKDIR /app
-
-COPY --from=builder /app /app
-
-EXPOSE 3004
-
-CMD ["node", "server.js"]
+# Jalankan aplikasi
+CMD ["node", "src/app.js"]
